@@ -1,0 +1,15 @@
+# ADD THIS AT BOTTOM OF YOUR server.py (before if __name__ == "__main__"):
+# -------------------------------------------------
+from fastapi.staticfiles import StaticFiles
+import os
+
+frontend_path = os.path.join(os.path.dirname(__file__), "frontend", "build")
+# also check backend/frontend/build for some structures
+if not os.path.exists(frontend_path):
+    frontend_path = os.path.join(os.path.dirname(__file__), "backend", "frontend", "build")
+
+if os.path.exists(frontend_path):
+    # Mount API first, then frontend - this serves React on /
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
+    print(f"Serving frontend from {frontend_path}")
+# -------------------------------------------------
