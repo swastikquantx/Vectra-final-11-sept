@@ -205,3 +205,7 @@ if os.path.exists(frontend_path):
 @app.get("/api/projects")
 def list_projects(user=Depends(get_current_user)):
     return db_find("projects", {"user_id": user["id"]})
+from fastapi.staticfiles import StaticFiles
+frontend_path = os.path.join(os.path.dirname(__file__), "frontend", "build")
+if os.path.exists(frontend_path):
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
