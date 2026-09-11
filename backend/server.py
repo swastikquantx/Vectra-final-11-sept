@@ -195,7 +195,13 @@ def create_project(data: ProjectIn, user=Depends(get_current_user)):
     doc = {"id": pid, "user_id": user["id"], "name": data.name, "description": data.description, "created_at": time.time(), "updated_at": time.time()}
     db_insert("projects", doc)
     return doc
+from fastapi.staticfiles import StaticFiles
+import os
 
+# Serve React frontend from backend (for Hostinger single deploy)
+frontend_path = os.path.join(os.path.dirname(__file__), "frontend", "build")
+if os.path.exists(frontend_path):
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
 @app.get("/api/projects")
 def list_projects(user=Depends(get_current_user)):
     return db_find("projects", {"user_id": user["id"]})
