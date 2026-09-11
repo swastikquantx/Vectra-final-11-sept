@@ -1,38 +1,43 @@
-
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import { AdminRoute } from './components/AdminRoute';
-import Sidebar from './components/Sidebar';
-import Footer from './components/Footer';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import Studio from './pages/Studio';
-import Admin from './pages/Admin';
-import Operations from './pages/Operations';
-import Performance from './pages/Performance';
-import Distribution from './pages/Distribution';
-import PublicLayout from './components/PublicLayout';
-import Auth from './pages/Auth';
+import Pricing from './pages/Pricing';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
 
-function ProtectedRoute({ children }) {
-  return children;
-}
-function Layout({ children }) {
-  return <div className="flex min-h-screen bg-black text-white"><Sidebar /><div className="flex-1 flex flex-col">{children}<Footer /></div></div>;
-}
-export default function App() {
+function App() {
+  const [user, setUser] = useState(null);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+
+  useEffect(() => {
+    const saved = localStorage.getItem('vectra_user');
+    if (saved) setUser(JSON.parse(saved));
+  }, []);
+
   return (
-    <AuthProvider>
-      <BrowserRouter>
+    <Router>
+      <div style={{background:'#070708', color:'white', minHeight:'100vh', fontFamily:'Inter, sans-serif'}}>
+        <nav style={{display:'flex', justifyContent:'space-between', padding:'16px 24px', borderBottom:'1px solid #222', alignItems:'center'}}>
+          <Link to="/" style={{fontWeight:900, fontSize:'20px', letterSpacing:'2px', color:'white', textDecoration:'none'}}>VECTRA AI</Link>
+          <div style={{display:'flex', gap:'20px', alignItems:'center'}}>
+            <Link to="/studio" style={{color:'#aaa', textDecoration:'none'}}>Studio</Link>
+            <Link to="/pricing" style={{color:'#aaa', textDecoration:'none'}}>Pricing</Link>
+            <Link to="/dashboard" style={{color:'#aaa', textDecoration:'none'}}>Dashboard</Link>
+            {user ? <span style={{color:'#666'}}>{user.email}</span> : <Link to="/login" style={{background:'white', color:'black', padding:'8px 16px', borderRadius:'20px', textDecoration:'none'}}>Login</Link>}
+          </div>
+        </nav>
         <Routes>
-          <Route path="/" element={<PublicLayout />} />
-          <Route path="/studio" element={<ProtectedRoute><Layout><Studio /></Layout></ProtectedRoute>} />
-          <Route path="/admin" element={<AdminRoute><Layout><Admin /></Layout></AdminRoute>} />
-          <Route path="/operations" element={<AdminRoute><Layout><Operations /></Layout></AdminRoute>} />
-          <Route path="/performance" element={<AdminRoute><Layout><Performance /></Layout></AdminRoute>} />
-          <Route path="/distribution" element={<ProtectedRoute><Layout><Distribution /></Layout></ProtectedRoute>} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/" element={<Studio backendUrl={backendUrl} user={user} />} />
+          <Route path="/studio" element={<Studio backendUrl={backendUrl} user={user} />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/login" element={<Login backendUrl={backendUrl} setUser={setUser} />} />
+          <Route path="/dashboard" element={<Dashboard backendUrl={backendUrl} user={user} />} />
         </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+        <div style={{textAlign:'center', padding:'20px', color:'#444', fontSize:'12px', borderTop:'1px solid #111', marginTop:'40px'}}>
+          Swastik AI Labs | UPI: 7359777788@UPI | Founder: akhil718@gmail.com
+        </div>
+      </div>
+    </Router>
   );
 }
+export default App;
